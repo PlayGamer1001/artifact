@@ -1,9 +1,6 @@
-﻿# Auditing_Pipeline
-
-**Artifact for**: *Beyond GDPR: A Large-Scale Study of Privacy Policy Compliance in Mobile Augmented Reality Apps*  
-**CCS 2026**
-
-A four-stage privacy policy clause annotation pipeline using LLM classification (OpenAI-compatible API, default Qwen).
+﻿# Artifact
+ 
+A four-stage privacy policy clause annotation pipeline using LLM classification (default Qwen).
 
 **Python**: 3.12+
 
