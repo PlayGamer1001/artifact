@@ -1,0 +1,8 @@
+# This directory is reserved for input data (raw privacy policy files).
+# Place your HTML/DOCX/PDF/TXT privacy policy files here before running
+# the process stage.
+#
+# Supported file types: .html, .htm, .md, .txt, .pdf, .docx
+#
+# The pipeline expects one privacy policy per file. File naming is
+# flexible but should be unique per app/package.

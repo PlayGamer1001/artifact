@@ -1,0 +1,136 @@
+[
+  {
+    "name": "Data Transparency",
+    "definition": "Statements describing the lifecycle and flow of personal information, including its collection sources, categories, processing purposes, external sharing or disclosure, and retention standards.",
+      "children": [
+        {
+          "name": "Scope of PI Collection",
+          "definition": "Statements describing the specific categories of personal information a business collects, including declarations that certain types of data are not collected.",
+          "example": "We collect contact information such as your name and email address, as well as professional details like your job title."
+        },
+        {
+          "name": "Sources of PI Collected",
+          "definition": "Statements identifying the entities, channels, or methods through which the business obtains consumers' personal information.",
+          "example": "We receive information about you from social media platforms when you use them to log in to our portal."
+        },
+        {
+          "name": "Scope of PI Sold/Shared/Disclosed",
+          "definition": "Statements specifying the categories of personal information that a business sells, shares for advertising, or discloses to third parties.",
+          "example": "In the past 12 months, we have disclosed identifiers and commercial information to our service providers."
+        },
+        {
+          "name": "Third-Party Recipients of PI",
+          "definition": "Statements identifying the categories or specific identities of third parties that receive personal information through sharing or disclosure.",
+          "example": "Your data may be shared with our advertising partners, cloud storage providers, and analytics firms."
+        },
+        {
+          "name": "Purposes for PI Processing",
+          "definition": "Statements describing the business or commercial reasons why personal information is collected, used, or otherwise handled.",
+          "example": "We process your usage data to maintain the security of our website and to improve our product features."
+        },
+        {
+          "name": "PI Retention Periods/Criteria",
+          "definition": "Statements describing the duration for which personal information is stored or the criteria used to determine when it should be deleted.",
+          "example": "We retain your account data for as long as your account is active or as needed to comply with legal obligations."
+        }
+      ]
+  },
+  {
+    "name": "Rights Notice",
+    "definition": "Statements informing consumers of their specific privacy rights and the scope of control they have over their personal information.",
+    "children": [
+      {
+        "name": "Right to Delete",
+        "definition": "Statements describing a consumer's right to request deletion of personal information.",
+        "example": "You can request that we delete your personal information."
+      },
+      {
+        "name": "Right to Correct",
+        "definition": "Statements describing a consumer's right to request correction of inaccurate personal information.",
+        "example": "You can request correction of inaccurate personal information."
+      },
+      {
+        "name": "Right to Know / Access",
+        "definition": "Statements describing a consumer's right to know what personal information is collected, used, disclosed, shared, or sold, and to access that personal information.",
+        "example": "You have the right to know what personal information we collect and to access it."
+      },
+      {
+        "name": "Right to Non-Discrimination",
+        "definition": "Statements describing a consumer's right not to receive discriminatory treatment or retaliation for exercising privacy rights.",
+        "example": "We will not discriminate against you for exercising your privacy rights."
+      },
+      {
+        "name": "Right to Opt Out",
+        "definition": "Statements describing a consumer's right to opt out of the sale, sharing, disclosure, or other processing of personal information where required by applicable law.",
+        "example": "You can opt out of the sale or sharing of your personal information."
+      },
+      {
+        "name": "Right to Limit SPI Use",
+        "definition": "Statements describing a consumer's right to limit the use or disclosure of sensitive personal information.",
+        "example": "You can limit our use of your sensitive personal information."
+      },
+      {
+        "name": "Right to Data Portability",
+        "definition": "Statements describing a consumer's right to obtain personal information in a portable and readily usable format and, where technically feasible, to transmit it to another controller.",
+        "example": "You can request a copy of your data in a portable format."
+      },
+      {
+        "name": "Right to Contest Profiling",
+        "definition": "Statements describing a consumer's right to question, review, and seek correction of profiling decisions that produce legal or similarly significant effects.",
+        "example": "You can contest decisions based on profiling that significantly affect you."
+      },
+      {
+        "name": "Right to Obtain a List of Specific Third Parties",
+        "definition": "Statements describing a consumer's right to obtain a list of specific third parties to which the controller has disclosed the consumer's personal data, or a list of specific third parties receiving consumers' personal data where consumer-specific records are not maintained.",
+        "example": "You can request a list of specific third parties to whom we disclosed your personal data."
+      }
+    ]
+  },
+  {
+    "name": "Privacy Controls",
+    "definition": "Statements describing the administrative channels for consumer communication and the specialized operational safeguards for high-risk data processing, such as biometric information.",
+    "children": [
+      {
+        "name": "Contact Information",
+        "definition": "Statements providing specific channels (email, phone, address, or forms) through which consumers can communicate with the business regarding privacy matters.",
+        "example": "Contact us at privacy@example.com."
+      },
+      {
+        "name": "Appeal Mechanism",
+        "definition": "Statements describing the formal process for consumers to challenge a business's decision regarding their privacy requests.",
+        "example": "If we deny your request, you may appeal by emailing our legal department."
+      },
+      {
+        "name": "Biometric Data Security Incident Response Protocol",
+        "definition": "Statements describing specific technical or organizational measures and notification procedures for addressing security breaches involving biometric data.",
+        "example": "In the event of a biometric data breach, we follow a specialized incident response plan to notify affected users."
+      },
+      {
+        "name": "Biometric Deletion Guidelines",
+        "definition": "Statements detailing the specific requirements, timelines, or technical procedures for the permanent removal of biometric identifiers.",
+        "example": "We implement permanent deletion of biometric templates once the authentication purpose is fulfilled."
+      }
+    ]
+  },
+  {
+    "name": "Policy Administration",
+    "definition": "Statements identifying the legal entity responsible for data processing and those concerning the effective status, version control, and update procedures of the privacy policy itself.",
+    "children": [
+      {
+        "name": "Last Updated Date/Effective Date",
+        "definition": "Statements that specify an explicit last updated date or effective date for the privacy policy.",
+        "example": "Effective Date: January 1, 2026."
+      },
+      {
+        "name": "Controller Identification",
+        "definition": "Statements that identify the legal entity responsible for deciding the purposes and means of processing personal information, including explicit naming or equivalent responsibility statements.",
+        "example": "ABC Corp. is responsible for processing your personal information."
+      },
+      {
+        "name": "Notification Process of Material Change",
+        "definition": "Statements describing the methods and channels through which consumers will be notified of significant or material updates to the privacy policy.",
+        "example": "We will notify you of material changes by posting an updated notice on our website or sending an email."
+      }
+    ]
+  }
+]
