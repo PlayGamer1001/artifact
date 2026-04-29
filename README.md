@@ -1,8 +1,10 @@
 ﻿# Artifact
- 
+
 A four-stage privacy policy clause annotation pipeline using LLM classification (default Qwen).
 
 **Python**: 3.12+
+
+The code was verified and run on a single RTX PRO 6000 GPU.
 
 ## Included Data
 
@@ -122,21 +124,19 @@ data/
 
 ## Evaluation Module
 
-After generating `annotate/answer` and `extract` outputs, compare LLM predictions against the sanitized golden labels:
+After generating `annotate/answer` outputs, compare LLM predictions against the sanitized golden labels:
 
 ```bash
 python evaluation/evaluate_model_predictions.py \
   --golden evaluation/golden_labels_example.json \
   --annotate-dir <output-dir>/<target-dir>/annotate/answer \
-  --extract-dir <output-dir>/<target-dir>/extract \
   --output evaluation/metrics.json
 ```
 
 **Metrics computed:**
-- **Step1**: Binary P/R/F1 (label vs No_label)
-- **Step2**: Jaccard/F1 on labeled samples
-- **Overall**: EM/Micro-F1/Macro-F1
-- **File-level**: EM/Jaccard/Micro-F1 aggregated by source file
+- **binary_passage**: Binary P/R/F1 (label vs No_label)
+- **multi_label_passage**: Jaccard/Micro-F1/Macro-F1 over aligned sentence records
+- **multi_label_document**: Jaccard/Micro-F1/Macro-F1 aggregated by source file
 
 **Note**: `evaluation/golden_labels_example.json` contains the sanitized golden labels for the included 100-policy sample.
 

@@ -12,17 +12,6 @@ PROJECT_ROOT = SCRIPT_DIR.parent
 
 
 NO_LABEL = "No_label"
-EXTRACT_TARGET_LABELS = {
-    "Purposes for PI Processing",
-    "Scope of PI Collection",
-    "Third-Party Recipients of PI",
-    "Sources of PI Collected",
-    "Scope of PI Sold/Shared/Disclosed",
-    "PI Retention Periods/Criteria",
-    "Last Updated Date/Effective Date",
-}
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Compare golden labels with model predictions and print three final result groups."
@@ -36,11 +25,6 @@ def parse_args() -> argparse.Namespace:
         "--annotate-dir",
         default=str(PROJECT_ROOT / "output" / "Qwen3.5-27B-FP8" / "annotate" / "answer"),
         help="Directory of annotate answer JSONL files.",
-    )
-    parser.add_argument(
-        "--extract-dir",
-        default=str(PROJECT_ROOT / "output" / "Qwen3.5-27B-FP8" / "extract"),
-        help="Directory of extract JSONL files.",
     )
     parser.add_argument(
         "--output",
@@ -95,8 +79,10 @@ def final_gold_labels(item: dict) -> list[str]:
     if len(annotations) >= 2:
         first = labels_from_annotation(annotations[0])
         second = labels_from_annotation(annotations[1])
-        if first == second:
+        if set(first) == set(second):
             return first
+        sentence_id = (item.get("data") or {}).get("sentence_id", "<unknown>")
+        raise ValueError(f"Unresolved two-annotator disagreement for {sentence_id}")
 
     return labels_from_annotation(annotations[0])
 
@@ -114,27 +100,7 @@ def load_golden(path: Path) -> dict[str, set[str]]:
     return golden
 
 
-def load_extract_non_empty_labels(extract_dir: Path) -> dict[str, set[str]]:
-    non_empty_by_sid: dict[str, set[str]] = defaultdict(set)
-
-    for file_path in sorted(extract_dir.glob("*.jsonl")):
-        with file_path.open("r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                record = json.loads(line)
-                sid = sid_from_source_file(record["source_file"], int(record["line_index"]))
-                extraction = record.get("extraction") or {}
-                for label, payload in extraction.items():
-                    if payload:
-                        non_empty_by_sid[sid].add(label)
-
-    return non_empty_by_sid
-
-
-def load_predictions(annotate_dir: Path, extract_dir: Path) -> dict[str, set[str]]:
-    extract_non_empty = load_extract_non_empty_labels(extract_dir)
+def load_predictions(annotate_dir: Path) -> dict[str, set[str]]:
     predictions: dict[str, set[str]] = {}
 
     for file_path in sorted(annotate_dir.glob("*.jsonl")):
@@ -160,10 +126,7 @@ def load_predictions(annotate_dir: Path, extract_dir: Path) -> dict[str, set[str
 
                 filtered_l2: list[str] = []
                 seen: set[str] = set()
-                allowed = extract_non_empty.get(sid, set())
                 for label in raw_l2:
-                    if label in EXTRACT_TARGET_LABELS and label not in allowed:
-                        continue
                     if label not in seen:
                         seen.add(label)
                         filtered_l2.append(label)
@@ -233,14 +196,13 @@ def main() -> None:
     args = parse_args()
 
     golden = load_golden(Path(args.golden))
-    predictions = load_predictions(Path(args.annotate_dir), Path(args.extract_dir))
+    predictions = load_predictions(Path(args.annotate_dir))
 
     common_sids = sorted(set(golden) & set(predictions))
     if not common_sids:
         raise SystemExit("No aligned records found between golden labels and predictions.")
 
     tp = fp = fn = tn = 0
-    step2_pairs: list[tuple[set[str], set[str]]] = []
     overall_pairs: list[tuple[set[str], set[str]]] = []
 
     for sid in common_sids:
@@ -259,22 +221,13 @@ def main() -> None:
         else:
             tn += 1
 
-        if gold_is_label:
-            step2_pairs.append(
-                ({label for label in gold_set if label != NO_LABEL}, {label for label in pred_set if label != NO_LABEL})
-            )
-
         overall_pairs.append((gold_set, pred_set))
 
     precision = tp / (tp + fp) if (tp + fp) else 0.0
     recall = tp / (tp + fn) if (tp + fn) else 0.0
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) else 0.0
 
-    step2_n = len(step2_pairs)
-    step2_jaccard = sum(jaccard(gold_set, pred_set) for gold_set, pred_set in step2_pairs) / step2_n if step2_n else 0.0
-    step2_f1 = sum(set_f1(gold_set, pred_set) for gold_set, pred_set in step2_pairs) / step2_n if step2_n else 0.0
-
-    overall_em = sum(1 for gold_set, pred_set in overall_pairs if gold_set == pred_set) / len(overall_pairs)
+    overall_jaccard = sum(jaccard(gold_set, pred_set) for gold_set, pred_set in overall_pairs) / len(overall_pairs)
     overall_micro_f1, overall_macro_f1 = macro_micro_f1(overall_pairs)
 
     file_gold: dict[str, set[str]] = defaultdict(set)
@@ -286,13 +239,12 @@ def main() -> None:
 
     file_keys = sorted(set(file_gold) | set(file_pred))
     file_pairs = [(file_gold[key], file_pred[key]) for key in file_keys]
-    file_em = sum(1 for gold_set, pred_set in file_pairs if gold_set == pred_set) / len(file_pairs)
     file_jaccard = sum(jaccard(gold_set, pred_set) for gold_set, pred_set in file_pairs) / len(file_pairs)
-    file_micro_f1, _ = macro_micro_f1(file_pairs)
+    file_micro_f1, file_macro_f1 = macro_micro_f1(file_pairs)
 
     metrics = {
         "aligned_records": len(common_sids),
-        "step1": {
+        "binary_passage": {
             "precision": precision,
             "recall": recall,
             "f1": f1,
@@ -303,26 +255,21 @@ def main() -> None:
                 "label_to_label": tp,
             },
         },
-        "step2": {
-            "n": step2_n,
-            "jaccard": step2_jaccard,
-            "f1": step2_f1,
-        },
-        "overall": {
-            "exact_match": overall_em,
+        "multi_label_passage": {
+            "jaccard": overall_jaccard,
             "micro_f1": overall_micro_f1,
             "macro_f1": overall_macro_f1,
         },
-        "file_level": {
-            "exact_match": file_em,
+        "multi_label_document": {
             "jaccard": file_jaccard,
             "micro_f1": file_micro_f1,
+            "macro_f1": file_macro_f1,
         },
     }
 
     print(f"Aligned records: {metrics['aligned_records']}")
     print()
-    print("Step1")
+    print("binary_passage")
     print(f"P/R/F1 = {precision * 100:.2f}% / {recall * 100:.2f}% / {f1 * 100:.2f}%")
     print("Confusion Matrix (Gold x Pred)")
     print(f"No_label -> No_label: {tn}")
@@ -330,19 +277,16 @@ def main() -> None:
     print(f"Label -> No_label: {fn}")
     print(f"Label -> Label: {tp}")
     print()
-    print("Step2")
-    print(f"N={step2_n}, Jaccard/F1 = {step2_jaccard * 100:.2f}% / {step2_f1 * 100:.2f}%")
-    print()
-    print("Overall")
+    print("multi_label_passage")
     print(
-        f"EM / Micro-F1 / Macro-F1 = {overall_em * 100:.2f}% / "
+        f"Jaccard / Micro-F1 / Macro-F1 = {overall_jaccard * 100:.2f}% / "
         f"{overall_micro_f1 * 100:.2f}% / {overall_macro_f1 * 100:.2f}%"
     )
     print()
-    print("File-level aggregation")
+    print("multi_label_document")
     print(
-        f"EM / Jaccard / Micro-F1 = {file_em * 100:.2f}% / "
-        f"{file_jaccard * 100:.2f}% / {file_micro_f1 * 100:.2f}%"
+        f"Jaccard / Micro-F1 / Macro-F1 = {file_jaccard * 100:.2f}% / "
+        f"{file_micro_f1 * 100:.2f}% / {file_macro_f1 * 100:.2f}%"
     )
 
     if args.output:
